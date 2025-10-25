@@ -102,6 +102,8 @@ canvas.grabbing { cursor: grabbing; }
     background-color: #44475a; /* Dracula Current Line */
     position: sticky;
     top: 0;
+    width: 4rem; /* <-- MODIFICA 1: Aggiunta larghezza fissa */
+    z-index: 20; /* Assicura che l'header superiore stia sopra la colonna sticky a sx */
 }
 .data-cell {
     padding: 0.5rem;
@@ -109,13 +111,18 @@ canvas.grabbing { cursor: grabbing; }
     width: 4rem;
     position: relative; /* Aggiunto relative per posizionare le frecce */
 }
+
+/* MODIFICA 2: 
+   Ho sostituito '.data-cell:first-child' (che non era usato dal JS) 
+   con 'tbody .header-cell' (che è ciò che il JS genera).
+*/
 /* Cella intestazione riga (verticale) */
-.data-cell:first-child {
+tbody .header-cell {
     position: sticky;
     left: 0;
-    background-color: #44475a; /* Dracula Current Line */
-    font-weight: 600;
-    color: #8be9fd; /* Dracula Cyan */
+    top: auto; /* Sovrascrive 'top: 0' della regola .header-cell base */
+    z-index: 10; /* Sta sopra le celle dati ma sotto l'header top */
+    /* Eredita 'width: 4rem' da .header-cell */
 }
 
 /* Cella attiva nello step */
@@ -125,7 +132,7 @@ canvas.grabbing { cursor: grabbing; }
     font-weight: 700;
     outline: 2px solid #f1fa8c; /* Dracula Yellow */
     outline-offset: -2px;
-    z-index: 10;
+    z-index: 5; /* Z-index più basso della colonna sticky */
 }
 /* Cella da cui dipende il calcolo */
 .cell-dependency {
@@ -200,4 +207,3 @@ canvas.grabbing { cursor: grabbing; }
 .step-cell {
     position: relative;
 }
-
