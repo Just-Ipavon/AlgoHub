@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="it" class="dark h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distanza di Levenshtein - AlgoHub</title>
+    <!-- Importazione Tailwind (per la preview) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CSS Unificato -->
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Configurazione colori Dracula per Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dracula: {
+                            bg: '#282a36',
+                            line: '#44475a',
+                            fg: '#f8f8f2',
+                            comment: '#6272a4',
+                            cyan: '#8be9fd',
+                            green: '#50fa7b',
+                            orange: '#ffb86c',
+                            pink: '#ff79c6',
+                            purple: '#bd93f9',
+                            red: '#ff5555',
+                            yellow: '#f1fa8c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dracula-bg text-dracula-fg flex flex-col min-h-screen antialiased">
+
+    <!-- Navbar Condivisa -->
+    <header class="bg-dracula-bg/80 border-b border-dracula-comment backdrop-blur-md sticky top-0 z-30 flex-shrink-0">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Brand -->
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="../index.html" class="text-2xl font-bold text-dracula-fg">
+                        <span class="text-dracula-purple">Algo</span>Hub
+                    </a>
+                </div>
+                
+                <!-- Nav Links (Desktop) -->
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <a href="../index.html" class="border-transparent text-dracula-fg/70 hover:border-dracula-comment hover:text-dracula-fg inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        Home
+                    </a>
+                    <a href="levenshtein.html" class="border-dracula-purple text-dracula-fg inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        Distanza di Levenshtein
+                    </a>
+                    <a href="tree_visualizer.html" class="border-transparent text-dracula-fg/70 hover:border-dracula-comment hover:text-dracula-fg inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        Visualizzatore Alberi
+                    </a>
+                    <a href="lcs.html" class="border-transparent text-dracula-fg/70 hover:border-dracula-comment hover:text-dracula-fg inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        LCS
+                    </a>
+                </div>
+
+                <!-- Pulsante Menu Mobile -->
+                <div class="-mr-2 flex items-center sm:hidden">
+                    <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-dracula-fg/70 hover:text-dracula-fg hover:bg-dracula-line focus:outline-none focus:ring-2 focus:ring-inset focus:ring-dracula-purple" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Apri menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Menu Mobile (nascosto) -->
+        <div class="sm:hidden hidden" id="mobile-menu">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="../index.html" class="text-dracula-fg/70 hover:bg-dracula-line hover:text-dracula-fg block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium">Home</a>
+                <a href="levenshtein.html" class="bg-dracula-purple text-dracula-fg block pl-3 pr-4 py-2 border-l-4 border-dracula-purple text-base font-medium">Distanza di Levenshtein</a>
+                <a href="tree_visualizer.html" class="text-dracula-fg/70 hover:bg-dracula-line hover:text-dracula-fg block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium">Visualizzatore Alberi</a>
+                <a href="lcs.html" class="text-dracula-fg/70 hover:bg-dracula-line hover:text-dracula-fg block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium">LCS</a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Contenuto Pagina: Levenshtein -->
+    <main class="flex-grow p-4 md:p-8">
+        <div class="max-w-6xl mx-auto bg-dracula-bg rounded-lg shadow-2xl overflow-hidden border border-dracula-comment">
+        
+            <!-- Contenitore Tab -->
+            <div class="flex border-b border-dracula-comment">
+                <button id="tabCalculator" 
+                        class="flex-1 py-4 px-6 text-center font-semibold text-lg transition duration-200 focus:outline-none bg-dracula-purple text-dracula-fg">
+                    Calcolatore
+                </button>
+                <button id="tabExercise" 
+                        class="flex-1 py-4 px-6 text-center font-semibold text-lg transition duration-200 focus:outline-none bg-dracula-line text-dracula-fg/70 hover:bg-dracula-comment">
+                    Esercizio
+                </button>
+            </div>
+    
+            <!-- Contenuto Principale -->
+            <div class="p-6 md:p-8">
+    
+                <!-- === SEZIONE CALCOLATORE (Visibile di default) === -->
+                <div id="calculatorContent">
+                    <!-- Intestazione -->
+                    <h1 class="text-3xl font-bold text-dracula-purple mb-2 text-center">
+                        Calcolatore Distanza di Levenshtein
+                    </h1>
+                    <p class="text-dracula-fg/70 mb-6 text-center">
+                        Inserisci due stringhe per calcolare la distanza e visualizzare la matrice delle operazioni.
+                    </p>
+    
+                    <!-- Modulo di Input Calcolatore -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label for="calculatorString1" class="block text-sm font-medium text-dracula-fg/70 mb-2">Stringa 1</label>
+                            <input type="text" id="calculatorString1" value="casa"
+                                   class="w-full bg-dracula-line border border-dracula-comment rounded-md p-3 text-dracula-fg focus:outline-none focus:ring-2 focus:ring-dracula-purple transition duration-200">
+                        </div>
+                        <div>
+                            <label for="calculatorString2" class="block text-sm font-medium text-dracula-fg/70 mb-2">Stringa 2</label>
+                            <input type="text" id="calculatorString2" value="cassa"
+                                   class="w-full bg-dracula-line border border-dracula-comment rounded-md p-3 text-dracula-fg focus:outline-none focus:ring-2 focus:ring-dracula-purple transition duration-200">
+                        </div>
+                    </div>
+    
+                    <!-- Pulsante di Calcolo -->
+                    <button id="calculatorCalculateBtn"
+                            class="w-full bg-dracula-purple text-dracula-fg font-bold py-3 px-6 rounded-md hover:bg-dracula-purple/80 transition duration-300 text-lg shadow-lg">
+                        Calcola
+                    </button>
+    
+                    <!-- Area Risultati Calcolatore -->
+                    <div id="calculatorResultArea" class="mt-8 hidden">
+                        <h2 class="text-2xl font-semibold text-dracula-purple mb-4">Risultato</h2>
+                        
+                        <!-- RIGA RESPONSIVE -->
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <p class="text-dracula-fg text-lg">
+                                La distanza di Levenshtein è: 
+                                <span id="calculatorDistanceOutput" class="font-mono text-3xl text-dracula-yellow bg-dracula-line p-2 rounded-md inline-block ml-2 mt-2 sm:mt-0"></span>
+                            </p>
+                            <button id="toggleViewBtn" class="flex-shrink-0 bg-dracula-comment text-dracula-fg font-semibold py-2 px-4 rounded-md hover:bg-dracula-comment/80 transition duration-300">
+                                Mostra Matrice Completa
+                            </button>
+                        </div>
+    
+                        <!-- Area Step-by-Step E Pseudocodice -->
+                        <div id="calculatorInteractiveArea" class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            
+                            <!-- Colonna Sinistra: Matrice Step-by-Step e Controlli -->
+                            <div class="lg:col-span-2">
+                                <h2 class="text-2xl font-semibold text-dracula-purple mb-4">Matrice Step-by-Step</h2>
+                                
+                                <!-- Controlli Step -->
+                                <div class="flex flex-col sm:flex-row items-center gap-4 mb-4">
+                                    <button id="playPauseBtn" class="bg-dracula-purple text-dracula-fg font-bold py-2 px-5 rounded-md hover:bg-dracula-purple/80 transition duration-300 w-full sm:w-auto order-2 sm:order-1">
+                                        Avvia Animazione
+                                    </button>
+                                    <div id="stepCounter" class="text-sm text-dracula-fg/70 flex-grow text-center order-1 sm:order-2">Passo 0 / 0</div>
+                                    <div class="flex items-center gap-2 w-full sm:w-auto order-3 sm:order-3">
+                                        <span class="text-sm text-dracula-fg/70">Lento</span>
+                                        <input type="range" id="speedSlider" min="50" max="1000" value="750" class="w-full sm:w-32 accent-dracula-purple">
+                                        <span class="text-sm text-dracula-fg/70">Veloce</span>
+                                        <button id="resetStepBtn" class="bg-dracula-comment text-dracula-fg font-bold py-2 px-4 rounded-md hover:bg-dracula-comment/80 transition duration-300 text-sm ml-2">
+                                            Reset
+                                        </button>
+                                    </div>
+                                </div>
+    
+                                <!-- Matrice Step -->
+                                <div id="stepMatrixContainer" class="overflow-x-auto bg-dracula-bg rounded-lg border border-dracula-comment">
+                                    <!-- Matrice step iniettata qui -->
+                                </div>
+                            </div>
+    
+                            <!-- Colonna Destra: Pseudocodice e Info -->
+                            <div>
+                                <h2 class="text-2xl font-semibold text-dracula-purple mb-4">Pseudocodice</h2>
+                                <pre class="bg-dracula-line text-dracula-fg p-4 rounded-md text-sm overflow-x-auto mb-6">
+<code id="pseudocodeEl">
+<div class="pseudo-line" data-line-id="func">EDIT-DISTANCE(A, B)</div>
+<div class="pseudo-line" data-line-id="init-m">1&nbsp; m = A.length</div>
+<div class="pseudo-line" data-line-id="init-n">2&nbsp; n = B.length</div>
+<div class="pseudo-line" data-line-id="init-dp">3&nbsp; let d[0..m, 0..n] be a new array</div>
+<div class="pseudo-line" data-line-id="init-i">5&nbsp; <b>for</b> i = 0 <b>to</b> m</div>
+<div class="pseudo-line" data-line-id="init-i">6&nbsp; &nbsp; &nbsp; d[i,0] = i&nbsp; &nbsp; // i cancellazioni</div>
+<div class="pseudo-line" data-line-id="init-j">7&nbsp; <b>for</b> j = 0 <b>to</b> n</div>
+<div class="pseudo-line" data-line-id="init-j">8&nbsp; &nbsp; &nbsp; d[0,j] = j&nbsp; &nbsp; // j inserimenti</div>
+<div class="pseudo-line" data-line-id="loop-i">10 <b>for</b> i = 1 <b>to</b> m</div>
+<div class="pseudo-line" data-line-id="loop-j">11&nbsp; &nbsp; <b>for</b> j = 1 <b>to</b> n</div>
+<div class="pseudo-line" data-line-id="cost">12&nbsp; &nbsp; &nbsp; &nbsp; <b>if</b> A[i-1] == B[j-1] // Indici JS (i-1, j-1)</div>
+<div class="pseudo-line" data-line-id="cost">13&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cost = 0</div>
+<div class="pseudo-line" data-line-id="cost">14&nbsp; &nbsp; &nbsp; &nbsp; <b>else</b></div>
+<div class="pseudo-line" data-line-id="cost">15&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cost = 1</div>
+<div class="pseudo-line" data-line-id="min">17&nbsp; &nbsp; &nbsp; &nbsp; d[i,j] = min( d[i-1,j] + 1,&nbsp; // cancellazione</div>
+<div class="pseudo-line" data-line-id="min">18&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; d[i,j-1] + 1,&nbsp; // inserimento</div>
+<div class="pseudo-line" data-line-id="min">19&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; d[i-1,j-1] + cost )</div>
+<div class="pseudo-line" data-line-id="return">21 <b>return</b> d[m,n]</div>
+</code>
+                                </pre>
+    
+                                <h3 class="text-xl font-semibold text-dracula-purple mb-3">Info Calcolo</h3>
+                                <div id="stepInfo" class="bg-dracula-line text-dracula-fg p-4 rounded-md font-mono text-sm h-48 overflow-y-auto">
+                                    Clicca "Calcola" per iniziare...
+                                </div>
+                            </div>
+                        </div>
+    
+                        <!-- Matrice Completa (nascosta inizialmente) -->
+                        <div id="calculatorMatrixContainerWrapper" class="mt-8 hidden">
+                            <h2 class="text-2xl font-semibold text-dracula-purple mb-4">Matrice Completa</h2>
+                            <p class="text-dracula-fg/70 text-sm mb-4">
+                                La tabella mostra il costo per trasformare i prefissi della Stringa 1 (verticale) nei prefissi della Stringa 2 (orizzontale).
+                            </p>
+                            <div id="calculatorMatrixContainer" class="overflow-x-auto bg-dracula-bg rounded-lg border border-dracula-comment">
+                                <!-- Matrice calcolatore iniettata qui -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- === SEZIONE ESERCIZIO (Nascosta di default) === -->
+                <div id="exerciseContent" class="hidden">
+                    <!-- Intestazione -->
+                    <h1 class="text-3xl font-bold text-dracula-purple mb-2 text-center">
+                        Esercizio Interattivo
+                    </h1>
+                    <p class="text-dracula-fg/70 mb-6 text-center">
+                        Inserisci le stringhe o generane di casuali, poi premi "Inizia" e compila la matrice.
+                    </p>
+                    
+                    <!-- Input Esercizio -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label for="exerciseString1" class="block text-sm font-medium text-dracula-fg/70 mb-2">Stringa 1</label>
+                            <input type="text" id="exerciseString1" value="gatto"
+                                   class="w-full bg-dracula-line border border-dracula-comment rounded-md p-3 text-dracula-fg focus:outline-none focus:ring-2 focus:ring-dracula-purple transition duration-200">
+                        </div>
+                        <div>
+                            <label for="exerciseString2" class="block text-sm font-medium text-dracula-fg/70 mb-2">Stringa 2</label>
+                            <input type="text" id="exerciseString2" value="ratto"
+                                   class="w-full bg-dracula-line border border-dracula-comment rounded-md p-3 text-dracula-fg focus:outline-none focus:ring-2 focus:ring-dracula-purple transition duration-200">
+                        </div>
+                    </div>
+    
+                    <!-- Pulsanti Esercizio -->
+                    <div class="flex flex-col md:flex-row gap-4 mb-6">
+                        <button id="generateStringsBtn"
+                                class="w-full md:w-1D/2 bg-dracula-comment text-dracula-fg font-bold py-3 px-6 rounded-md hover:bg-dracula-comment/80 transition duration-300 shadow-lg">
+                            Genera Stringhe Casuali
+                        </button>
+                        <button id="startExerciseBtn"
+                                class="w-full md:w-1/2 bg-dracula-purple text-dracula-fg font-bold py-3 px-6 rounded-md hover:bg-dracula-purple/80 transition duration-300 text-lg shadow-lg">
+                            Inizia Esercizio
+                        </button>
+                    </div>
+    
+                    <!-- Area Messaggio Esercizio -->
+                    <div id="exerciseResult" class="mt-4 mb-4 text-center text-lg font-semibold hidden"></div>
+    
+                    <!-- Matrice Esercizio -->
+                    <div id="exerciseMatrixContainer" class="overflow-x-auto bg-dracula-bg rounded-lg border border-dracula-comment hidden">
+                        <!-- Matrice esercizio iniettata qui -->
+                    </div>
+                    
+                    <!-- Pulsante Verifica -->
+                    <button id="checkSolutionBtn"
+                            class="w-full bg-dracula-yellow text-dracula-bg font-bold py-3 px-6 rounded-md hover:bg-dracula-yellow/80 transition duration-300 text-lg shadow-lg mt-6 hidden">
+                        Verifica Soluzione
+                    </button>
+    
+                </div>
+    
+            </div>
+        </div>
+    </main>
+    
+    <!-- JS del sito e JS di Levenshtein -->
+    <script src="../js/script.js"></script>
+    <script src="../js/levenshtein.script.js"></script>
+</body>
+</html>
+

@@ -1,88 +1,163 @@
 <!DOCTYPE html>
-<html lang="it" class="dark">
+<html lang="it" class="dark h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizzatore Alberi Binari Avanzato</title>
+    <title>Hub Strumenti di Algoritmi</title>
+    <!-- Importazione Tailwind (per la preview) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://rsms.me/">
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <!-- CSS Unificato -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Configurazione colori Dracula per Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dracula: {
+                            bg: '#282a36',
+                            line: '#44475a',
+                            fg: '#f8f8f2',
+                            comment: '#6272a4',
+                            cyan: '#8be9fd',
+                            green: '#50fa7b',
+                            orange: '#ffb86c',
+                            pink: '#ff79c6',
+                            purple: '#bd93f9',
+                            red: '#ff5555',
+                            yellow: '#f1fa8c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-900 text-gray-200 flex flex-col h-screen overflow-hidden">
+<body class="bg-dracula-bg text-dracula-fg flex flex-col h-full antialiased">
 
-    <header class="bg-gray-800/50 border-b border-gray-700 p-4 text-center z-20 flex-shrink-0">
-        <h1 class="text-2xl font-bold text-white">Visualizzatore di Alberi di Ricerca Binaria e Red-Black</h1>
+    <!-- Navbar Condivisa -->
+    <header class="bg-dracula-bg/80 border-b border-dracula-comment backdrop-blur-md sticky top-0 z-30 flex-shrink-0">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Brand -->
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-dracula-fg">
+                        <span class="text-dracula-purple">Algo</span>Hub
+                    </a>
+                </div>
+                
+                <!-- Nav Links (Desktop) -->
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <a href="index.html" class="border-dracula-purple text-dracula-fg inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        Home
+                    </a>
+                    <a href="pages/levenshtein.html" class="border-transparent text-dracula-fg/70 hover:border-dracula-comment hover:text-dracula-fg inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        Distanza di Levenshtein
+                    </a>
+                    <a href="pages/tree_visualizer.html" class="border-transparent text-dracula-fg/70 hover:border-dracula-comment hover:text-dracula-fg inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        Visualizzatore Alberi
+                    </a>
+                    <a href="pages/lcs.html" class="border-transparent text-dracula-fg/70 hover:border-dracula-comment hover:text-dracula-fg inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        LCS
+                    </a>
+                </div>
+
+                <!-- Pulsante Menu Mobile -->
+                <div class="-mr-2 flex items-center sm:hidden">
+                    <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-dracula-fg/70 hover:text-dracula-fg hover:bg-dracula-line focus:outline-none focus:ring-2 focus:ring-inset focus:ring-dracula-purple" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Apri menu</span>
+                        <!-- Icona "menu" -->
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <!-- Icona "chiudi" -->
+                        <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Menu Mobile (nascosto) -->
+        <div class="sm:hidden hidden" id="mobile-menu">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="index.html" class="bg-dracula-purple text-dracula-fg block pl-3 pr-4 py-2 border-l-4 border-dracula-purple text-base font-medium">Home</a>
+                <a href="pages/levenshtein.html" class="text-dracula-fg/70 hover:bg-dracula-line hover:text-dracula-fg block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium">Distanza di Levenshtein</a>
+                <a href="pages/tree_visualizer.html" class="text-dracula-fg/70 hover:bg-dracula-line hover:text-dracula-fg block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium">Visualizzatore Alberi</a>
+                <a href="pages/lcs.html" class="text-dracula-fg/70 hover:bg-dracula-line hover:text-dracula-fg block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium">LCS</a>
+            </div>
+        </div>
     </header>
 
-    <main class="flex-grow flex p-4 gap-4 min-h-0 relative">
-        <div id="controls-wrapper" class="flex-shrink-0 z-10 h-full flex items-start">
-            <div id="controls-panel" class="control-panel p-4 rounded-lg shadow-lg h-full flex flex-col overflow-hidden">
-                <div class="controls-header flex justify-between items-center pb-2 mb-4 border-b border-gray-600 flex-shrink-0">
-                    <h2 class="text-xl font-semibold text-white">Controlli</h2>
-                </div>
-                <div id="controls-content" class="flex-grow overflow-y-auto">
-                    <div class="text-xs text-gray-400 mb-4 p-2 bg-gray-800/50 rounded-md">
-                        <b>Suggerimento:</b> Clicca su un nodo per selezionarlo, poi premi Cancella.
-                    </div>
-                    <div class="mb-4">
-                        <label for="tree-type" class="block text-sm font-medium text-gray-300 mb-2">Tipo di Albero</label>
-                        <select id="tree-type" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="bst">Albero di Ricerca Binaria (BST)</option>
-                            <option value="rbt">Albero Red-Black (RBT)</option>
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label for="node-value" class="block text-sm font-medium text-gray-300 mb-2">Valore Nodo (1-999)</label>
-                        <input type="number" id="node-value" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2" placeholder="O seleziona un nodo">
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button id="insert-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Inserisci</button>
-                        <button id="delete-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Cancella</button>
-                        <button id="search-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors col-span-2">Cerca</button>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-gray-600">
-                         <label for="node-list" class="block text-sm font-medium text-gray-300 mb-2">Lista Nodi (separati da virgola)</label>
-                        <input type="text" id="node-list" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2" placeholder="Es. 50, 30, 70, 20, 40">
-                        <button id="load-list-btn" class="bg-teal-600 hover:bg-teal-700 w-full mt-2 text-white font-bold py-2 px-4 rounded-lg transition-colors">Carica Lista</button>
-                    </div>
-                    <div class="mt-4">
-                        <button id="reset-btn" class="bg-gray-600 hover:bg-gray-500 w-full text-white font-bold py-2 px-4 rounded-lg transition-colors">Reset Albero</button>
-                    </div>
-                </div>
+    <!-- Contenuto Pagina: Homepage -->
+    <main class="flex-grow">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl font-extrabold text-dracula-fg sm:text-5xl md:text-6xl">
+                    Benvenuto in <span class="text-dracula-purple">AlgoHub</span>
+                </h1>
+                <p class="mt-3 max-w-md mx-auto text-base text-dracula-fg/70 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                    Una collezione di strumenti interattivi per visualizzare ed imparare algoritmi e strutture dati complesse.
+                </p>
             </div>
-            <button id="toggle-controls-btn" class="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-r-lg -ml-1 mt-3 shadow-lg" title="Nascondi/Mostra controlli">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-            </button>
-        </div>
 
-        <div class="absolute inset-0 bg-gray-800 shadow-inner overflow-hidden">
-            <canvas id="tree-canvas" class="absolute top-0 left-0"></canvas>
-            <div id="message-overlay" class="absolute top-4 left-1/2 -translate-x-1/2 bg-yellow-500 text-gray-900 font-bold px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 z-30"></div>
-        </div>
+            <!-- Griglia Strumenti -->
+            <div class="mt-12 max-w-lg mx-auto grid gap-8 lg:grid-cols-2 lg:max-w-none">
+                
+                <!-- Card 1: Levenshtein -->
+                <a href="pages/levenshtein.html" class="flex flex-col rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+                    <div class="flex-shrink-0 bg-dracula-bg p-6">
+                        <h2 class="text-2xl font-bold text-dracula-purple">Distanza di Levenshtein</h2>
+                        <p class="mt-3 text-dracula-fg/70">
+                            Calcola la "edit distance" tra due stringhe. Visualizza la matrice DP completa, l'animazione step-by-step e prova l'esercizio interattivo.
+                        </p>
+                    </div>
+                    <div class="flex-1 bg-dracula-line p-6 flex justify-between items-center">
+                        <p class="text-lg font-semibold text-dracula-yellow">String Matching & DP</p>
+                        <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-dracula-purple text-dracula-fg">
+                            Apri Strumento &rarr;
+                        </span>
+                    </div>
+                </a>
 
-        <div id="pseudo-code-area" class="control-panel p-4 rounded-lg shadow-lg flex flex-col">
-            <div id="pseudo-code-header" class="flex justify-between items-center mb-4 border-b border-gray-600 pb-2 flex-shrink-0">
-                 <h2 id="pseudo-title" class="text-xl font-semibold text-white">Pseudocodice</h2>
-                 <span class="text-gray-400 cursor-move" title="Trascina per spostare">☰</span>
-            </div>
-            <div id="pseudo-code-container" class="text-sm font-mono text-gray-300 overflow-y-auto">
-                <p>Seleziona un'operazione per vedere l'algoritmo.</p>
+                <!-- Card 2: Visualizzatore Alberi -->
+                <a href="pages/tree_visualizer.html" class="flex flex-col rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+                    <div class="flex-shrink-0 bg-dracula-bg p-6">
+                        <h2 class="text-2xl font-bold text-dracula-purple">Visualizzatore Alberi (BST & RBT)</h2>
+                        <p class="mt-3 text-dracula-fg/70">
+                            Inserisci, cancella e cerca nodi in un Albero di Ricerca Binaria (BST) o un Albero Red-Black (RBT). Segui lo pseudocodice e il log delle operazioni.
+                        </p>
+                    </div>
+                    <div class="flex-1 bg-dracula-line p-6 flex justify-between items-center">
+                        <p class="text-lg font-semibold text-dracula-yellow">Strutture Dati</p>
+                        <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-dracula-purple text-dracula-fg">
+                            Apri Strumento &rarr;
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Card 3: LCS -->
+                <a href="pages/lcs.html" class="flex flex-col rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+                    <div class="flex-shrink-0 bg-dracula-bg p-6">
+                        <h2 class="text-2xl font-bold text-dracula-purple">Longest Common Subsequence (LCS)</h2>
+                        <p class="mt-3 text-dracula-fg/70">
+                            Trova la sottosequenza comune più lunga tra due stringhe. Include matrice DP con frecce, animazione e un esercizio interattivo.
+                        </p>
+                    </div>
+                    <div class="flex-1 bg-dracula-line p-6 flex justify-between items-center">
+                        <p class="text-lg font-semibold text-dracula-yellow">String Matching & DP</p>
+                        <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-dracula-purple text-dracula-fg">
+                            Apri Strumento &rarr;
+                        </span>
+                    </div>
+                </a>
+
             </div>
         </div>
     </main>
 
-    <footer id="log-area-container" class="flex-shrink-0 relative" style="height: 200px;">
-        <div id="log-resizer"></div>
-        <div id="log-area" class="p-4 rounded-t-lg shadow-lg flex flex-col h-full overflow-y-auto">
-            <h2 id="log-title" class="text-xl font-semibold mb-2 text-white border-b border-gray-600 pb-2 flex-shrink-0">Log Operazioni</h2>
-            <div id="log-container" class="text-sm font-mono text-gray-300 space-y-1 flex-grow overflow-y-auto">
-                <p class="text-gray-500">Il log delle operazioni apparirà qui...</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="script.js" defer></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
 

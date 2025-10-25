@@ -8,8 +8,8 @@ const FRICTION = 0.85;
 
 // --- ELEMENTI DEL DOM ---
 const canvas = document.getElementById('tree-canvas');
-const ctx = canvas.getContext('2d');
-const container = canvas.parentElement;
+const ctx = canvas ? canvas.getContext('2d') : null; // Aggiunto controllo null
+const container = canvas ? canvas.parentElement : null; // Aggiunto controllo null
 const insertBtn = document.getElementById('insert-btn');
 const deleteBtn = document.getElementById('delete-btn');
 const searchBtn = document.getElementById('search-btn');
@@ -66,11 +66,11 @@ class BinaryTree {
         animationQueue.push({ type: 'highlight-code', line: 'search-0' });
         animationQueue.push({ type: 'log', message: `Inizio ricerca per ${key}` });
         while (current !== null) {
-            animationQueue.push({ type: 'highlight-node', node: current, color: '#3b82f6' });
+            animationQueue.push({ type: 'highlight-node', node: current, color: '#bd93f9' }); // Dracula Purple
             animationQueue.push({ type: 'highlight-code', line: 'search-1' });
             animationQueue.push({ type: 'log', message: `Confronto ${key} con ${current.key}` });
             if (key === current.key) {
-                animationQueue.push({ type: 'highlight-node', node: current, color: '#10b981' });
+                animationQueue.push({ type: 'highlight-node', node: current, color: '#50fa7b' }); // Dracula Green
                 animationQueue.push({ type: 'highlight-code', line: 'search-2' });
                 animationQueue.push({ type: 'log', message: `Valore ${key} trovato!` });
                 return;
@@ -131,7 +131,7 @@ class BinarySearchTree extends BinaryTree {
     delete(key) {
         let nodeToDelete = this.findNode(key);
         if (!nodeToDelete) { animationQueue.push({ type: 'log', message: `Nodo ${key} non trovato.` }); return; }
-        animationQueue.push({ type: 'highlight-node', node: nodeToDelete, color: '#ef4444' });
+        animationQueue.push({ type: 'highlight-node', node: nodeToDelete, color: '#ff5555' }); // Dracula Red
         animationQueue.push({ type: 'log', message: `Trovato nodo ${key} da cancellare.` });
         if (nodeToDelete.left === null && nodeToDelete.right === null) {
             animationQueue.push({ type: 'log', message: `Caso 1: È una foglia. Rimuovo.` });
@@ -145,7 +145,7 @@ class BinarySearchTree extends BinaryTree {
         } else {
             animationQueue.push({ type: 'log', message: `Caso 3: Ha due figli. Trovo successore.` });
             let successor = this.minimum(nodeToDelete.right);
-            animationQueue.push({ type: 'highlight-node', node: successor, color: '#eab308' });
+            animationQueue.push({ type: 'highlight-node', node: successor, color: '#f1fa8c' }); // Dracula Yellow
             animationQueue.push({ type: 'log', message: `Successore è ${successor.key}.` });
             if (successor.parent !== nodeToDelete) {
                 this.transplant(successor, successor.right);
@@ -207,8 +207,8 @@ class RedBlackTree extends BinarySearchTree {
         animationQueue.push({ type: 'highlight-code', line: 'fixup-0' });
         animationQueue.push({ type: 'log', message: `Avvio InsertFixup per ${z.key}.`});
         while (z.parent !== null && z.parent.color === 'RED') {
-            animationQueue.push({ type: 'highlight-node', node: z, color: '#facc15' });
-            animationQueue.push({ type: 'highlight-node', node: z.parent, color: '#facc15' });
+            animationQueue.push({ type: 'highlight-node', node: z, color: '#f1fa8c' }); // Dracula Yellow
+            animationQueue.push({ type: 'highlight-node', node: z.parent, color: '#f1fa8c' }); // Dracula Yellow
             animationQueue.push({ type: 'highlight-code', line: 'fixup-1' });
 
             const isParentLeftChild = z.parent === z.parent.parent.left;
@@ -216,7 +216,7 @@ class RedBlackTree extends BinarySearchTree {
 
             if (uncle !== null && uncle.color === 'RED') {
                 animationQueue.push({ type: 'log', message: `Fixup Caso 1: Zio è ROSSO.`});
-                animationQueue.push({ type: 'highlight-node', node: uncle, color: '#facc15' });
+                animationQueue.push({ type: 'highlight-node', node: uncle, color: '#f1fa8c' }); // Dracula Yellow
                 animationQueue.push({ type: 'highlight-code', line: 'fixup-3' });
                 animationQueue.push({ type: 'recolor-node', node: z.parent, newColor: 'BLACK' });
                 animationQueue.push({ type: 'recolor-node', node: uncle, newColor: 'BLACK' });
@@ -270,7 +270,7 @@ class RedBlackTree extends BinarySearchTree {
             return;
         }
         animationQueue.push({ type: 'log', message: `Inizio cancellazione RBT di ${key}.` });
-        animationQueue.push({ type: 'highlight-node', node: z, color: '#ef4444' });
+        animationQueue.push({ type: 'highlight-node', node: z, color: '#ff5555' }); // Dracula Red
 
         let y = z;
         let yOriginalColor = y.color;
@@ -311,13 +311,13 @@ class RedBlackTree extends BinarySearchTree {
         animationQueue.push({ type: 'highlight-code', line: 'dfix-0' });
 
         while (x !== this.root && (x === null || x.color === 'BLACK')) {
-            if (x && x.parent) animationQueue.push({ type: 'highlight-node', node: x.parent, color: '#a78bfa' });
+            if (x && x.parent) animationQueue.push({ type: 'highlight-node', node: x.parent, color: '#bd93f9' }); // Dracula Purple
             
             const isLeftChild = x === (x.parent && x.parent.left);
             let w = isLeftChild ? x.parent.right : x.parent.left;
 
             if (w) {
-                 animationQueue.push({ type: 'highlight-node', node: w, color: '#fde047' });
+                 animationQueue.push({ type: 'highlight-node', node: w, color: '#f1fa8c' }); // Dracula Yellow
                  animationQueue.push({ type: 'log', message: `Sibling (w) è ${w.key}.` });
             }
 
@@ -377,14 +377,17 @@ function updateNodePositions(node, x, y, hOffset, isInitializing = false) {
     if (node.right) updateNodePositions(node.right, x + hOffset, y + VERTICAL_SPACING, nextOffset, isInitializing);
 }
 function drawLine(from, to) {
+    if (!ctx) return;
     ctx.beginPath(); ctx.moveTo(from.x, from.y); ctx.lineTo(to.x, to.y);
-    ctx.strokeStyle = '#4b5563'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.strokeStyle = '#6272a4'; // Dracula Comment
+    ctx.lineWidth = 2; ctx.stroke();
 }
 function drawNode(node) {
+    if (!ctx) return;
     if (selectedNode === node) {
         ctx.beginPath();
         ctx.arc(node.x, node.y, NODE_RADIUS + 8, 0, 2 * Math.PI);
-        ctx.fillStyle = 'rgba(59, 130, 246, 0.4)';
+        ctx.fillStyle = 'rgba(189, 147, 249, 0.4)'; // Dracula Purple (trasparente)
         ctx.fill();
     }
     if (node.highlightColor) {
@@ -396,18 +399,24 @@ function drawNode(node) {
     }
     ctx.beginPath();
     ctx.arc(node.x, node.y, NODE_RADIUS, 0, 2 * Math.PI);
-    ctx.fillStyle = (treeType === 'rbt' && node.color === 'RED' ? '#dc2626' : '#1f2937');
+    // Dracula Red per RBT RED, Dracula Line per BST o RBT BLACK
+    ctx.fillStyle = (treeType === 'rbt' && node.color === 'RED' ? '#ff5555' : '#44475a');
     ctx.fill();
-    ctx.strokeStyle = (treeType === 'rbt' && node.color === 'BLACK') ? '#f9fafb' : '#6b7280';
+    // Dracula FG per RBT BLACK, Dracula Comment per BST o RBT RED
+    ctx.strokeStyle = (treeType === 'rbt' && node.color === 'BLACK') ? '#f8f8f2' : '#6272a4';
     ctx.lineWidth = 3;
     ctx.stroke();
-    ctx.fillStyle = '#f9fafb'; ctx.font = '16px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#f8f8f2'; // Dracula FG
+    ctx.font = '16px Inter'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(node.key, node.x, node.y);
 }
 
 
 // --- LOOP PRINCIPALE E GESTIONE ANIMAZIONE ---
 function mainLoop() {
+    // Evita errori se il canvas non esiste in questa pagina
+    if (!ctx) return; 
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.translate(viewOffset.x, viewOffset.y);
@@ -445,8 +454,10 @@ function mainLoop() {
 function clearAllAnimationHighlights() {
     highlightedNodes.forEach(n => n.highlightColor = null);
     highlightedNodes = [];
-    const hl = pseudoContainer.querySelector('.highlight');
-    if(hl) hl.classList.remove('highlight');
+    if (pseudoContainer) {
+        const hl = pseudoContainer.querySelector('.highlight');
+        if(hl) hl.classList.remove('highlight');
+    }
 }
 
 function processAnimationStep() {
@@ -478,13 +489,13 @@ function processAnimationStep() {
             }
             step.node.x = stagedX; step.node.y = stagedY;
             step.node.targetX = stagedX; step.node.targetY = stagedY;
-            step.node.highlightColor = '#3b82f6';
+            step.node.highlightColor = '#bd93f9'; // Dracula Purple
             highlightedNodes.push(step.node);
             logMessage(`> Preparazione inserimento di ${step.node.key}`, 'info');
             break;
         case 'highlight-node':
             if(step.node) {
-                step.node.highlightColor = step.color || '#eab308';
+                step.node.highlightColor = step.color || '#f1fa8c'; // Dracula Yellow
                 highlightedNodes.push(step.node);
             }
             break;
@@ -512,11 +523,11 @@ function startAnimation() {
     processAnimationStep();
 }
 
-function logMessage(message,type='info'){if(logContainer.children.length===1&&logContainer.children[0].textContent.includes('apparirà qui')){logContainer.innerHTML='';}const p=document.createElement('p');p.textContent=message;if(type==='error')p.className='log-error';logContainer.appendChild(p);logContainer.scrollTop=logContainer.scrollHeight;}
-function showMessage(msg,type='info'){messageOverlay.textContent=msg;messageOverlay.className=`absolute top-4 left-1/2 -translate-x-1/2 text-gray-900 font-bold px-4 py-2 rounded-lg shadow-lg transition-opacity duration-300 z-30 ${type==='error'?'bg-red-500':'bg-yellow-500'}`;messageOverlay.classList.remove('opacity-0');setTimeout(()=>messageOverlay.classList.add('opacity-0'),ANIMATION_SPEED*4);}
+function logMessage(message,type='info'){if(!logContainer) return; if(logContainer.children.length===1&&logContainer.children[0].textContent.includes('apparirà qui')){logContainer.innerHTML='';}const p=document.createElement('p');p.textContent=message;if(type==='error')p.className='log-error';logContainer.appendChild(p);logContainer.scrollTop=logContainer.scrollHeight;}
+function showMessage(msg,type='info'){if(!messageOverlay) return; messageOverlay.textContent=msg;messageOverlay.className=`absolute top-4 left-1/2 -translate-x-1/2 text-dracula-bg font-bold px-4 py-2 rounded-lg shadow-lg transition-opacity duration-300 z-30 ${type==='error'?'bg-dracula-red':'bg-dracula-yellow'}`;messageOverlay.classList.remove('opacity-0');setTimeout(()=>messageOverlay.classList.add('opacity-0'),ANIMATION_SPEED*4);}
 function highlightPseudoCode(lineId){const line=document.getElementById(lineId);if(line)line.classList.add('highlight');}
-function disableControls(){[insertBtn,deleteBtn,searchBtn,resetBtn,treeTypeSelect,loadListBtn].forEach(el=>el.disabled=true);}
-function enableControls(){[insertBtn,deleteBtn,searchBtn,resetBtn,treeTypeSelect,loadListBtn].forEach(el=>el.disabled=false);}
+function disableControls(){[insertBtn,deleteBtn,searchBtn,resetBtn,treeTypeSelect,loadListBtn].forEach(el=>{if(el)el.disabled=true;});}
+function enableControls(){[insertBtn,deleteBtn,searchBtn,resetBtn,treeTypeSelect,loadListBtn].forEach(el=>{if(el)el.disabled=false;});}
 
 // --- GESTIONE EVENTI ---
 function handleInsert(){const value=parseInt(valueInput.value);if(isNaN(value)||value<1||value>999){showMessage("Inserisci un valore valido (1-999).","error");return;}if(tree.findNode(value)){showMessage(`Il nodo ${value} esiste già.`,"error");return;}loadPseudoCode(treeType,'insert');tree.insert(value);valueInput.value='';startAnimation();}
@@ -569,66 +580,21 @@ function forceMoveSubtree(node, dx, dy) {
     forceMoveSubtree(node.left, dx, dy);
     forceMoveSubtree(node.right, dx, dy);
 }
-canvas.addEventListener('mousedown', (e) => {
-    if (isAnimating) return;
-    const pos = getMousePos(e);
-    const clickedNode = findNodeAtPos(tree.root, pos.x, pos.y);
-    if (clickedNode) {
-        selectedNode = (selectedNode === clickedNode) ? null : clickedNode;
-        valueInput.value = selectedNode ? selectedNode.key : '';
-        draggedNode = clickedNode;
-        draggedNode.vx = draggedNode.vy = 0;
-        const worldMouseX = (pos.x - viewOffset.x) / scale;
-        const worldMouseY = (pos.y - viewOffset.y) / scale;
-        dragOffset = { x: worldMouseX - draggedNode.x, y: worldMouseY - draggedNode.y };
-        canvas.classList.add('grabbing');
-    } else {
-        if(selectedNode) { selectedNode = null; valueInput.value = ''; }
-        isDraggingCanvas = true;
-        startDragPosition = { x: pos.x - viewOffset.x, y: pos.y - viewOffset.y };
-        canvas.classList.add('grabbing');
-    }
-});
-canvas.addEventListener('mousemove', (e) => {
-    if (isAnimating) return;
-    const pos = getMousePos(e);
-    if (draggedNode) {
-        const worldMouseX = (pos.x - viewOffset.x) / scale;
-        const worldMouseY = (pos.y - viewOffset.y) / scale;
-        const newX = worldMouseX - dragOffset.x;
-        const newY = worldMouseY - dragOffset.y;
-        const dx = newX - draggedNode.x;
-        const dy = newY - draggedNode.y;
-        forceMoveSubtree(draggedNode, dx, dy);
-    } else if (isDraggingCanvas) {
-        viewOffset.x = pos.x - startDragPosition.x;
-        viewOffset.y = pos.y - startDragPosition.y;
-    }
-});
-canvas.addEventListener('mouseup', () => { draggedNode = null; isDraggingCanvas = false; canvas.classList.remove('grabbing'); });
-canvas.addEventListener('mouseleave', () => { if (draggedNode || isDraggingCanvas) canvas.dispatchEvent(new Event('mouseup')); });
-canvas.addEventListener('wheel', (e) => { e.preventDefault(); const pos = getMousePos(e); const worldPosBeforeZoom = { x: (pos.x - viewOffset.x) / scale, y: (pos.y - viewOffset.y) / scale }; const zoom = 1 - e.deltaY * ZOOM_SENSITIVITY; const newScale = Math.max(0.1, Math.min(5, scale * zoom)); viewOffset.x = pos.x - worldPosBeforeZoom.x * newScale; viewOffset.y = pos.y - worldPosBeforeZoom.y * newScale; scale = newScale; });
-window.addEventListener('keydown', (e) => { if (e.target.tagName === 'INPUT' || isAnimating) return; const panSpeed = 20; let moved = false; switch (e.key) { case 'ArrowUp': viewOffset.y += panSpeed; moved = true; break; case 'ArrowDown': viewOffset.y -= panSpeed; moved = true; break; case 'ArrowLeft': viewOffset.x += panSpeed; moved = true; break; case 'ArrowRight': viewOffset.x -= panSpeed; moved = true; break; } if (moved) { e.preventDefault(); } });
-pseudoHeader.addEventListener('mousedown', (e) => { isDraggingPseudo = true; pseudoDragOffset.x = e.clientX - pseudoArea.offsetLeft; pseudoDragOffset.y = e.clientY - pseudoArea.offsetTop; document.body.style.userSelect = 'none'; });
-document.addEventListener('mousemove', (e) => { if (isDraggingPseudo) { let newX = e.clientX - pseudoDragOffset.x; let newY = e.clientY - pseudoDragOffset.y; const maxX = window.innerWidth - pseudoArea.offsetWidth; const maxY = window.innerHeight - pseudoArea.offsetHeight; newX = Math.max(0, Math.min(newX, maxX)); newY = Math.max(0, Math.min(newY, maxY)); pseudoArea.style.left = `${newX}px`; pseudoArea.style.top = `${newY}px`; pseudoArea.style.right = 'auto'; } });
-document.addEventListener('mouseup', () => { isDraggingPseudo = false; document.body.style.userSelect = ''; });
-const startResizeLog = (e) => { e.preventDefault(); window.addEventListener('mousemove', resizeLog); window.addEventListener('mouseup', stopResizeLog); };
-const resizeLog = (e) => { const newHeight = window.innerHeight - e.clientY; if (newHeight > 60 && newHeight < window.innerHeight * 0.7) { logAreaContainer.style.height = `${newHeight}px`; } };
-const stopResizeLog = () => { window.removeEventListener('mousemove', resizeLog); window.removeEventListener('mouseup', stopResizeLog); };
-logResizer.addEventListener('mousedown', startResizeLog);
-toggleControlsBtn.addEventListener('click', () => { controlsPanel.classList.toggle('collapsed'); });
 
 // --- PSEUDOCODICE ---
 const pseudoCodes = { 
-    bst: { insert: `<p id="insert-bst-0">Se l'albero è vuoto:</p><p id="insert-bst-1">&nbsp;&nbsp;Crea il nodo radice.</p><p id="insert-bst-2">Altrimenti, inizia dalla radice:</p><p id="insert-bst-3">&nbsp;&nbsp;Se valore < nodo corrente:</p><p id="insert-bst-4">&nbsp;&nbsp;&nbsp;&nbsp;Vai a sinistra.</p><p id="insert-bst-5">&nbsp;&nbsp;&nbsp;&nbsp;Se vuoto, inserisci qui.</p><p id="insert-bst-6">&nbsp;&nbsp;Altrimenti (valore >= nodo corrente):</p><p id="insert-bst-7">&nbsp;&nbsp;&nbsp;&nbsp;Vai a destra.</p><p id="insert-bst-8">&nbsp;&nbsp;&nbsp;&nbsp;Se vuoto, inserisci qui.</p>`, search: `<p id="search-0">Inizia dalla radice.</p><p id="search-1">Finché il nodo non è nullo:</p><p id="search-2">&nbsp;&nbsp;Se valore == nodo corrente, TROVATO.</p><p id="search-3">&nbsp;&nbsp;Se valore < nodo corrente:</p><p id="search-4">&nbsp;&nbsp;&nbsp;&nbsp;Vai a sinistra.</p><p id="search-5">&nbsp;&nbsp;Altrimenti, vai a destra.</p><p id="search-6">Se il nodo è nullo, NON TROVATO.</p>`, delete: `<p>1. Trova il nodo.</p><p>2. Se è una foglia, rimuovilo.</p><p>3. Se ha un figlio, sostituiscilo con il figlio.</p><p>4. Se ha due figli, trova il successore, scambia i valori e cancella il successore.</p>`,}, 
-    rbt: { insert: `<p id="insert-rbt-0">1. Esegui un inserimento standard BST.</p><p id="insert-rbt-1">2. Colora il nuovo nodo di ROSSO.</p><p id="insert-rbt-2">3. Esegui InsertFixup per ripristinare le proprietà.</p>`, fixup: `<p id="fixup-0"><b>InsertFixup:</b></p><p id="fixup-1">Finché padre(z) è ROSSO:</p><p id="fixup-2">&nbsp;&nbsp;Se padre(z) è figlio sinistro:</p><p id="fixup-3">&nbsp;&nbsp;&nbsp;&nbsp;<b>Caso 1</b>: Zio è ROSSO -> Ricolora</p><p id="fixup-4">&nbsp;&nbsp;&nbsp;&nbsp;<b>Caso 2</b>: Zio NERO (triangolo) -> Rotazione Sinistra</p><p id="fixup-5">&nbsp;&nbsp;&nbsp;&nbsp;<b>Caso 3</b>: Zio NERO (linea) -> Rotazione Destra + Ricolora</p><p id="fixup-6">&nbsp;&nbsp;Altrimenti (padre(z) è figlio destro):</p><p id="fixup-7">&nbsp;&nbsp;&nbsp;&nbsp;...casi simmetrici...</p><p id="fixup-10">Infine, colora la radice di NERO.</p>`, 
-           delete: `<p>1. Esegui una cancellazione standard BST.</p><p>2. Se il nodo rimosso era NERO, avvia DeleteFixup.</p><p id="dfix-0"><b>DeleteFixup:</b></p><p>Finché x non è radice ed è NERO:</p><p>&nbsp;&nbsp;Se x è figlio sinistro:</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Caso 1</b>: Fratello (w) è ROSSO.</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Caso 2</b>: Fratello (w) è NERO e i suoi figli sono NERI.</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Caso 3</b>: Fratello (w) è NERO, figlio sx ROSSO, dx NERO.</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Caso 4</b>: Fratello (w) è NERO, figlio dx ROSSO.</p><p>&nbsp;&nbsp;Altrimenti (x è figlio destro):</p><p>&nbsp;&nbsp;&nbsp;&nbsp;...casi simmetrici...</p><p>Infine, colora x di NERO.</p>`,
-           search: `<p id="search-0">Inizia dalla radice.</p><p id="search-1">Finché il nodo non è nullo:</p><p id="search-2">&nbsp;&nbsp;Se valore == nodo corrente, TROVATO.</p><p id="search-3">&nbsp;&nbsp;Se valore < nodo corrente:</p><p id="search-4">&nbsp;&nbsp;&nbsp;&nbsp;Vai a sinistra.</p><p id="search-5">&nbsp;&nbsp;Altrimenti, vai a destra.</p><p id="search-6">Se il nodo è nullo, NON TROVATO.</p>`,}};
-function loadPseudoCode(type,operation){let code='';const opName=operation.charAt(0).toUpperCase()+operation.slice(1);const typeName=type.toUpperCase();if(type==='rbt'&&operation==='insert'){code=pseudoCodes.rbt.insert+pseudoCodes.rbt.fixup;}else if(pseudoCodes[type]&&pseudoCodes[type][operation]){code=pseudoCodes[type][operation];}
+    bst: { insert: `<p id="insert-bst-0">Se l'albero è vuoto:</p><p id="insert-bst-1">&nbsp;&nbsp;Crea il nodo radice.</p><p id="insert-bst-2">Altrimenti, inizia dalla radice:</p><p id="insert-bst-3">&nbsp;&;&nbsp;Se valore < nodo corrente:</p><p id="insert-bst-4">&nbsp;&nbsp;&nbsp;&nbsp;Vai a sinistra.</p><p id="insert-bst-5">&nbsp;&nbsp;&nbsp;&nbsp;Se vuoto, inserisci qui.</p><p id="insert-bst-6">&nbsp;&nbsp;Altrimenti (valore >= nodo corrente):</p><p id="insert-bst-7">&nbsp;&nbsp;&nbsp;&nbsp;Vai a destra.</p><p id="insert-bst-8">&nbsp;&nbsp;&nbsp;&nbsp;Se vuoto, inserisci qui.</p>`, search: `<p id="search-0">Inizia dalla radice.</p><p id="search-1">Finché il nodo non è nullo:</p><p id="search-2">&nbsp;&nbsp;Se valore == nodo corrente, TROVATO.</p><p id="search-3">&nbsp;&nbsp;Se valore < nodo corrente:</p><p id="search-4">&nbsp;&nbsp;&nbsp;&nbsp;Vai a sinistra.</p><p id="search-5">&nbsp;&nbsp;Altrimenti, vai a destra.</p><p id="search-6">Se il nodo è nullo, NON TROVATO.</p>`, delete: `<p>1. Trova il nodo.</p><p>2. Se è una foglia, rimuovilo.</p><p>3. Se ha un figlio, sostituiscilo con il figlio.</p><p>4. Se ha due figli, trova il successore, scambia i valori e cancella il successore.</p>`,}, 
+    rbt: { insert: `<p id="insert-rbt-0">1. Esegui un inserimento standard BST.</p><p id="insert-rbt-1">2. Colora il nuovo nodo di ROSSO.</p><p id="insert-rbt-2">3. Esegui InsertFixup per ripristinare le proprietà.</p>`, fixup: `<p id="fixup-0"><b>InsertFixup:</b></p><p id="fixup-1">Finché padre(z) è ROSSO:</p><p id="fixup-2">&nbsp;&nbsp;Se padre(z) è figlio sinistro:</p><p id="fixup-3">&nbsp;&nbsp;&nbsp;&nbsp;<b>Caso 1</b>: Zio è ROSSO -> Ricolora</p><p id="fixup-4">&nbsp;&nbsp;&nbsp;&nbsp;<b>Caso 2</b>: Zio NERO (triangolo) -> Rotazione Sinistra</p><p id="fixup-5">&nbsp;&;&nbsp;&nbsp;<b>Caso 3</b>: Zio NERO (linea) -> Rotazione Destra + Ricolora</p><p id="fixup-6">&nbsp;&nbsp;Altrimenti (padre(z) è figlio destro):</p><p id="fixup-7">&nbsp;&nbsp;&nbsp;&nbsp;...casi simmetrici...</p><p id="fixup-10">Infine, colora la radice di NERO.</p>`, 
+           delete: `<p>1. Esegui una cancellazione standard BST.</p><p>2. Se il nodo rimosso era NERO, avvia DeleteFixup.</p><p id="dfix-0"><b>DeleteFixup:</b></p><p>Finché x non è radice ed è NERO:</p><p>&nbsp;&nbsp;Se x è figlio sinistro:</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Caso 1</b>: Fratello (w) è ROSSO.</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Caso 2</b>: Fratello (w) è NERO e i suoi figli sono NERI.</p><p>&nbsp;&auto;<b>Caso 3</b>: Fratello (w) è NERO, figlio sx ROSSO, dx NERO.</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<b>Caso 4</b>: Fratello (w) è NERO, figlio dx ROSSO.</p><p>&nbsp;&nbsp;Altrimenti (x è figlio destro):</p><p>&nbsp;&nbsp;&nbsp;&nbsp;...casi simmetrici...</p><p>Infine, colora x di NERO.</p>`,
+           search: `<p id="search-0">Inizia dalla radice.</p><p id="search-1">Finché il nodo non è nullo:</p><p id="search-2">&nbsp;&auto;Se valore == nodo corrente, TROVATO.</p><p id="search-3">&nbsp;&nbsp;Se valore < nodo corrente:</p><p id="search-4">&nbsp;&nbsp;&nbsp;&nbsp;Vai a sinistra.</p><p id="search-5">&nbsp;&nbsp;Altrimenti, vai a destra.</p><p id="search-6">Se il nodo è nullo, NON TROVATO.</p>`,}};
+function loadPseudoCode(type,operation){if(!pseudoContainer) return; let code='';const opName=operation.charAt(0).toUpperCase()+operation.slice(1);const typeName=type.toUpperCase();if(type==='rbt'&&operation==='insert'){code=pseudoCodes.rbt.insert+pseudoCodes.rbt.fixup;}else if(pseudoCodes[type]&&pseudoCodes[type][operation]){code=pseudoCodes[type][operation];}
 pseudoContainer.innerHTML=code;pseudoTitle.textContent=`Pseudocodice: ${opName} ${typeName}`;}
 
 // --- INIZIALIZZAZIONE ---
 function init() {
+    // Controlla se il canvas esiste prima di provare ad usarlo
+    if (!canvas || !container || !pseudoContainer || !logContainer) return; 
+    
     canvas.width = container.clientWidth;
     canvas.height = container.clientHeight;
     treeType = treeTypeSelect.value;
@@ -642,20 +608,112 @@ function init() {
     logContainer.innerHTML='<p class="text-gray-500">Il log delle operazioni apparirà qui...</p>';
 }
 
-window.addEventListener('resize', () => {
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
-});
-insertBtn.addEventListener('click', handleInsert);
-deleteBtn.addEventListener('click', handleDelete);
-searchBtn.addEventListener('click', handleSearch);
-resetBtn.addEventListener('click', handleReset);
-treeTypeSelect.addEventListener('change', handleTreeTypeChange);
-loadListBtn.addEventListener('click', handleLoadList);
-valueInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') handleInsert(); });
+// Aggiungi listener solo se gli elementi esistono
+document.addEventListener('DOMContentLoaded', () => {
+    // Controlla se siamo sulla pagina del visualizzatore di alberi
+    if (document.getElementById('tree-canvas')) {
+        
+        canvas.addEventListener('mousedown', (e) => {
+            if (isAnimating) return;
+            const pos = getMousePos(e);
+            const clickedNode = findNodeAtPos(tree.root, pos.x, pos.y);
+            if (clickedNode) {
+                selectedNode = (selectedNode === clickedNode) ? null : clickedNode;
+                valueInput.value = selectedNode ? selectedNode.key : '';
+                draggedNode = clickedNode;
+                draggedNode.vx = draggedNode.vy = 0;
+                const worldMouseX = (pos.x - viewOffset.x) / scale;
+                const worldMouseY = (pos.y - viewOffset.y) / scale;
+                dragOffset = { x: worldMouseX - draggedNode.x, y: worldMouseY - draggedNode.y };
+                canvas.classList.add('grabbing');
+            } else {
+                if(selectedNode) { selectedNode = null; valueInput.value = ''; }
+                isDraggingCanvas = true;
+                startDragPosition = { x: pos.x - viewOffset.x, y: pos.y - viewOffset.y };
+                canvas.classList.add('grabbing');
+            }
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (isAnimating) return;
+            const pos = getMousePos(e);
+            if (draggedNode) {
+                const worldMouseX = (pos.x - viewOffset.x) / scale;
+                const worldMouseY = (pos.y - viewOffset.y) / scale;
+                const newX = worldMouseX - dragOffset.x;
+                const newY = worldMouseY - dragOffset.y;
+                const dx = newX - draggedNode.x;
+                const dy = newY - draggedNode.y;
+                forceMoveSubtree(draggedNode, dx, dy);
+            } else if (isDraggingCanvas) {
+                viewOffset.x = pos.x - startDragPosition.x;
+                viewOffset.y = pos.y - startDragPosition.y;
+            }
+        });
 
-window.addEventListener('load', () => {
-    init();
-    mainLoop();
+        canvas.addEventListener('mouseup', () => { draggedNode = null; isDraggingCanvas = false; canvas.classList.remove('grabbing'); });
+        canvas.addEventListener('mouseleave', () => { if (draggedNode || isDraggingCanvas) canvas.dispatchEvent(new Event('mouseup')); });
+        canvas.addEventListener('wheel', (e) => { e.preventDefault(); const pos = getMousePos(e); const worldPosBeforeZoom = { x: (pos.x - viewOffset.x) / scale, y: (pos.y - viewOffset.y) / scale }; const zoom = 1 - e.deltaY * ZOOM_SENSITIVITY; const newScale = Math.max(0.1, Math.min(5, scale * zoom)); viewOffset.x = pos.x - worldPosBeforeZoom.x * newScale; viewOffset.y = pos.y - worldPosBeforeZoom.y * newScale; scale = newScale; });
+
+        window.addEventListener('keydown', (e) => { 
+            if (e.target.tagName === 'INPUT' || isAnimating) return; 
+            const panSpeed = 20; 
+            let moved = false; 
+            switch (e.key) { 
+                case 'ArrowUp': viewOffset.y += panSpeed; moved = true; break; 
+                case 'ArrowDown': viewOffset.y -= panSpeed; moved = true; break; 
+                case 'ArrowLeft': viewOffset.x += panSpeed; moved = true; break; 
+                case 'ArrowRight': viewOffset.x -= panSpeed; moved = true; break; 
+            } 
+            if (moved) { e.preventDefault(); } 
+        });
+
+        if (pseudoHeader) {
+            pseudoHeader.addEventListener('mousedown', (e) => { isDraggingPseudo = true; pseudoDragOffset.x = e.clientX - pseudoArea.offsetLeft; pseudoDragOffset.y = e.clientY - pseudoArea.offsetTop; document.body.style.userSelect = 'none'; });
+        }
+        
+        document.addEventListener('mousemove', (e) => { 
+            if (isDraggingPseudo) { 
+                let newX = e.clientX - pseudoDragOffset.x; 
+                let newY = e.clientY - pseudoDragOffset.y; 
+                const maxX = window.innerWidth - pseudoArea.offsetWidth; 
+                const maxY = window.innerHeight - pseudoArea.offsetHeight; 
+                newX = Math.max(0, Math.min(newX, maxX)); 
+                newY = Math.max(0, Math.min(newY, maxY)); 
+                pseudoArea.style.left = `${newX}px`; 
+                pseudoArea.style.top = `${newY}px`; 
+                pseudoArea.style.right = 'auto'; 
+            } 
+        });
+        
+        document.addEventListener('mouseup', () => { isDraggingPseudo = false; document.body.style.userSelect = ''; });
+        
+        const startResizeLog = (e) => { e.preventDefault(); window.addEventListener('mousemove', resizeLog); window.addEventListener('mouseup', stopResizeLog); };
+        const resizeLog = (e) => { const newHeight = window.innerHeight - e.clientY; if (newHeight > 60 && newHeight < window.innerHeight * 0.7) { logAreaContainer.style.height = `${newHeight}px`; } };
+        const stopResizeLog = () => { window.removeEventListener('mousemove', resizeLog); window.removeEventListener('mouseup', stopResizeLog); };
+        
+        if (logResizer) logResizer.addEventListener('mousedown', startResizeLog);
+        
+        if (toggleControlsBtn) toggleControlsBtn.addEventListener('click', () => { controlsPanel.classList.toggle('collapsed'); });
+
+        window.addEventListener('resize', () => {
+            if (canvas) {
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+            }
+        });
+
+        if (insertBtn) insertBtn.addEventListener('click', handleInsert);
+        if (deleteBtn) deleteBtn.addEventListener('click', handleDelete);
+        if (searchBtn) searchBtn.addEventListener('click', handleSearch);
+        if (resetBtn) resetBtn.addEventListener('click', handleReset);
+        if (treeTypeSelect) treeTypeSelect.addEventListener('change', handleTreeTypeChange);
+        if (loadListBtn) loadListBtn.addEventListener('click', handleLoadList);
+        if (valueInput) valueInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') handleInsert(); });
+
+        // Spostato init() e mainLoop() dentro DOMContentLoaded
+        init();
+        mainLoop();
+    }
 });
 
