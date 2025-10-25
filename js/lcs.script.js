@@ -16,7 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Controlla se siamo sulla pagina LCS
     // Seleziona un elemento univoco della pagina LCS
-    const lcsHeader = document.querySelector('h1.text-cyan-400');
+    
+    // --- CORREZIONE ---
+    // Il selettore originale era 'h1.text-cyan-400', ma l'HTML usa 'h1.text-dracula-purple'.
+    // Questo causava il blocco dello script.
+    const lcsHeader = document.querySelector('h1.text-dracula-purple'); 
+    
     if (!lcsHeader || !lcsHeader.textContent.includes('LCS')) {
         // Non siamo sulla pagina LCS, non fare nulla
         return;
@@ -146,21 +151,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // (Identica a Levenshtein, ma con check per null)
     if (tabCalculator && tabExercise) {
         tabCalculator.addEventListener('click', () => {
-            calculatorContent.classList.remove('hidden');
-            exerciseContent.classList.add('hidden');
-            tabCalculator.classList.replace('bg-gray-700', 'bg-cyan-600');
-            tabCalculator.classList.replace('text-gray-300', 'text-white');
-            tabExercise.classList.replace('bg-cyan-600', 'bg-gray-700');
-            tabExercise.classList.replace('text-white', 'text-gray-300');
+            if (calculatorContent) calculatorContent.classList.remove('hidden');
+            if (exerciseContent) exerciseContent.classList.add('hidden');
+            tabCalculator.classList.replace('bg-dracula-line', 'bg-dracula-purple');
+            tabCalculator.classList.replace('text-dracula-fg/70', 'text-dracula-fg');
+            tabExercise.classList.replace('bg-dracula-purple', 'bg-dracula-line');
+            tabExercise.classList.replace('text-dracula-fg', 'text-dracula-fg/70');
         });
 
         tabExercise.addEventListener('click', () => {
-            calculatorContent.classList.add('hidden');
-            exerciseContent.classList.remove('hidden');
-            tabCalculator.classList.replace('bg-cyan-600', 'bg-gray-700');
-            tabCalculator.classList.replace('text-white', 'text-gray-300');
-            tabExercise.classList.replace('bg-gray-700', 'bg-cyan-600');
-            tabExercise.classList.replace('text-gray-300', 'text-white');
+            if (calculatorContent) calculatorContent.classList.add('hidden');
+            if (exerciseContent) exerciseContent.classList.remove('hidden');
+            tabCalculator.classList.replace('bg-dracula-purple', 'bg-dracula-line');
+            tabCalculator.classList.replace('text-dracula-fg', 'text-dracula-fg/70');
+            tabExercise.classList.replace('bg-dracula-line', 'bg-dracula-purple');
+            tabExercise.classList.replace('text-dracula-fg/70', 'text-dracula-fg');
         });
     }
 
@@ -181,18 +186,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Reset animazione
             stopAnimationLCS();
-            playPauseBtn.textContent = "Avvia Animazione";
+            if (playPauseBtn) playPauseBtn.textContent = "Avvia Animazione";
             lcsIsPlaying = false;
 
             // Mostra risultato
-            calculatorLengthOutput.textContent = dp[lcsCurrentS1.length][lcsCurrentS2.length];
-            calculatorSequenceOutput.textContent = `"${sequence}"`;
-            calculatorResultArea.classList.remove('hidden');
+            if (calculatorLengthOutput) calculatorLengthOutput.textContent = dp[lcsCurrentS1.length][lcsCurrentS2.length];
+            if (calculatorSequenceOutput) calculatorSequenceOutput.textContent = `"${sequence}"`;
+            if (calculatorResultArea) calculatorResultArea.classList.remove('hidden');
             
             // Imposta la vista di default (Step-by-Step)
-            calculatorInteractiveArea.classList.remove('hidden');
-            calculatorMatrixContainerWrapper.classList.add('hidden');
-            toggleViewBtn.textContent = "Mostra Matrice Completa";
+            if (calculatorInteractiveArea) calculatorInteractiveArea.classList.remove('hidden');
+            if (calculatorMatrixContainerWrapper) calculatorMatrixContainerWrapper.classList.add('hidden');
+            if (toggleViewBtn) toggleViewBtn.textContent = "Mostra Matrice Completa";
 
             // Renderizza il primo passo
             renderCurrentStepLCS();
@@ -264,23 +269,25 @@ document.addEventListener('DOMContentLoaded', () => {
             tableHtml += '</tr>';
         }
         tableHtml += '</tbody></table>';
-        calculatorMatrixContainer.innerHTML = tableHtml;
+        if (calculatorMatrixContainer) calculatorMatrixContainer.innerHTML = tableHtml;
     }
 
     // --- LOGICA STEP-BY-STEP LCS ---
 
     function playAnimationLCS() {
         lcsIsPlaying = true;
-        playPauseBtn.textContent = "Pausa";
+        if (playPauseBtn) playPauseBtn.textContent = "Pausa";
         lcsAnimationInterval = setTimeout(stepForwardLCS, lcsAnimationSpeed);
     }
 
     function stopAnimationLCS() {
         lcsIsPlaying = false;
-        if (lcsAllSteps.length === 0 || lcsCurrentStepIndex < lcsAllSteps.length - 1) {
-            playPauseBtn.textContent = "Continua";
-        } else {
-            playPauseBtn.textContent = "Ricomincia";
+        if (playPauseBtn) {
+            if (lcsAllSteps.length === 0 || lcsCurrentStepIndex < lcsAllSteps.length - 1) {
+                playPauseBtn.textContent = "Continua";
+            } else {
+                playPauseBtn.textContent = "Ricomincia";
+            }
         }
         if (lcsAnimationInterval) {
             clearTimeout(lcsAnimationInterval);
@@ -318,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         stopAnimationLCS();
         lcsCurrentStepIndex = 0;
         renderCurrentStepLCS();
-        playPauseBtn.textContent = "Avvia Animazione";
+        if (playPauseBtn) playPauseBtn.textContent = "Avvia Animazione";
     }
 
     if (playPauseBtn) playPauseBtn.addEventListener('click', toggleAnimationLCS);
@@ -330,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Funzione principale che orchestra il rendering di un singolo passo LCS.
      */
     function renderCurrentStepLCS() {
-        if (lcsAllSteps.length === 0) return;
+        if (lcsAllSteps.length === 0 || !stepMatrixContainer) return;
 
         const currentStep = lcsAllSteps[lcsCurrentStepIndex];
         
@@ -338,13 +345,14 @@ document.addEventListener('DOMContentLoaded', () => {
         updateStepInfoLCS(currentStep);
         highlightPseudocodeLCS(currentStep.line);
 
-        stepCounter.textContent = `Passo ${lcsCurrentStepIndex + 1} / ${lcsAllSteps.length}`;
+        if (stepCounter) stepCounter.textContent = `Passo ${lcsCurrentStepIndex + 1} / ${lcsAllSteps.length}`;
     }
 
     /**
      * Renderizza la tabella HTML per lo step-by-step LCS.
      */
     function renderStepMatrixLCS(currentStep) {
+        if (!stepMatrixContainer) return;
         const m = lcsCurrentS1.length;
         const n = lcsCurrentS2.length;
         const ci = currentStep.i;
@@ -411,13 +419,14 @@ document.addEventListener('DOMContentLoaded', () => {
      * Aggiorna il pannello info LCS.
      */
     function updateStepInfoLCS(step) {
-        stepInfo.innerHTML = step.info.replace(/\n/g, '<br>');
+        if (stepInfo) stepInfo.innerHTML = step.info.replace(/\n/g, '<br>');
     }
 
     /**
      * Evidenzia la riga corretta dello pseudocodice LCS.
      */
     function highlightPseudocodeLCS(lineId) {
+        if (!pseudocodeEl) return;
         pseudocodeEl.querySelectorAll('.pseudo-line').forEach(line => {
             line.classList.remove('highlight');
         });
@@ -471,17 +480,19 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let s2 = s2_array.join('');
 
-            exerciseString1Input.value = s1;
-            exerciseString2Input.value = s2;
+            if (exerciseString1Input) exerciseString1Input.value = s1;
+            if (exerciseString2Input) exerciseString2Input.value = s2;
             
-            exerciseMatrixContainer.classList.add('hidden');
-            checkSolutionBtn.classList.add('hidden');
-            exerciseResult.classList.add('hidden');
+            if (exerciseMatrixContainer) exerciseMatrixContainer.classList.add('hidden');
+            if (checkSolutionBtn) checkSolutionBtn.classList.add('hidden');
+            if (exerciseResult) exerciseResult.classList.add('hidden');
         });
     }
 
     if (startExerciseBtn) {
         startExerciseBtn.addEventListener('click', () => {
+            if (!exerciseString1Input || !exerciseString2Input || !exerciseResult) return;
+            
             const s1 = exerciseString1Input.value;
             const s2 = exerciseString2Input.value;
             
@@ -497,9 +508,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderExerciseMatrixLCS(s1, s2, dp);
             
-            exerciseMatrixContainer.classList.remove('hidden');
-            checkSolutionBtn.classList.remove('hidden');
-            exerciseResult.classList.add('hidden');
+            if (exerciseMatrixContainer) exerciseMatrixContainer.classList.remove('hidden');
+            if (checkSolutionBtn) checkSolutionBtn.classList.remove('hidden');
+            if (exerciseResult) exerciseResult.classList.add('hidden');
         });
     }
 
@@ -507,6 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Renderizza la matrice (Esercizio) con celle input per l'utente LCS.
      */
     function renderExerciseMatrixLCS(s1, s2, dp) {
+        if (!exerciseMatrixContainer) return;
         const m = s1.length;
         const n = s2.length;
         let tableHtml = `<table class="min-w-full divide-y divide-gray-700 text-center font-mono">`;
@@ -545,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (checkSolutionBtn) {
         checkSolutionBtn.addEventListener('click', () => {
-            if (!lcsExerciseSolution) return;
+            if (!lcsExerciseSolution || !exerciseResult) return;
 
             const inputs = document.querySelectorAll('#exerciseMatrixContainer .exercise-input');
             let allCorrect = true;
@@ -581,6 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- INIT ---
+    // Aggiungo un controllo di esistenza prima di chiamare .click()
     if (calculatorCalculateBtn) {
         calculatorCalculateBtn.click();
     }
